@@ -38,8 +38,46 @@ int scan(HardwareSerial &MySerial,TwoWire &ScanWire)
  // ScanWire.begin(123);
   ScanWire.begin();
   
-  WireUtility_address = 1;
+  WireUtility_address = 0x1;// scan special address
   return scanNext(MySerial,ScanWire);
+}
+
+/**
+Adresse d'appel général : 0000 0000
+
+Après l'émission d'un appel général, les circuits ayant la capacité de traiter ce genre de demande d'appel émettent un acquitement.
+
+Le deuxième octet permet de définir le contenu de l'appel :
+
+0000 0110
+    RESET. Remet tous les registres de circuits connectés dans leur état initial (mise sous tension). Les circuits qui le peuvent rechargent leur adresse esclave. 
+	
+*/
+int general_call_reset(TwoWire &ScanWire)
+{
+	ScanWire.beginTransmission(0x0);
+	ScanWire.write(0x06);
+	int error = ScanWire.endTransmission();
+	return error;
+}
+
+/**
+Adresse d'appel général : 0000 0000
+
+Après l'émission d'un appel général, les circuits ayant la capacité de traiter ce genre de demande d'appel émettent un acquitement.
+
+Le deuxième octet permet de définir le contenu de l'appel :
+
+0000 0100
+    Les circuits définissant leur adresse de façon matérielle réinitialisent leur adresse esclave. Cela ne réinitialise pas les circuits. 
+	
+*/
+int general_call_init_address(TwoWire &ScanWire)
+{
+	ScanWire.beginTransmission(0x0);
+	ScanWire.write(0x04);
+	int error = ScanWire.endTransmission();
+	return error;
 }
 //1111 0XX
 int scanNext10bits(HardwareSerial &MySerial,TwoWire &ScanWire)
@@ -102,16 +140,17 @@ if (WireUtility_address>=0x7800)
       MySerial.println("  !");
 
 	  if (WireUtility_address==0x0)  	 MySerial.println(" 0000000 0 / 0000000 1 General Call(0) or a Start Byte(1)");
- if (WireUtility_address==0x1)  	 MySerial.println(" 0000001 X CBUS Addresses");
- if (WireUtility_address==0x2)  	 MySerial.println(" 0000010 X Reserved for Different Bus Formats");
- if (WireUtility_address==0x3)  	 MySerial.println(" 0000011 X Reserved for future purposes");
- if (WireUtility_address&0xFC==0x4)  	 MySerial.println(" 00001XX X High-Speed Master Code");
- if (WireUtility_address&0xFC==0x78)  	 {
+          else if (WireUtility_address==0x1)  	 MySerial.println(" 0000001 X CBUS Addresses");
+ else if (WireUtility_address==0x2)  	 MySerial.println(" 0000010 X Reserved for Different Bus Formats");
+ else if (WireUtility_address==0x3)  	 MySerial.println(" 0000011 X Reserved for future purposes");
+ else if (WireUtility_address<0xf)  	 MySerial.println(" ...0001111 X Reserved for future purposes");
+ else if (WireUtility_address&0xFC==0x4)  	 MySerial.println(" 00001XX X High-Speed Master Code");
+ else if (WireUtility_address&0xFC==0x78)  	 {
 		MySerial.println("11110XX X 10-bit Slave Addressing :  11110XX X xxxxxxxx");
 			WireUtility_address=0x7800;
 		return scanNext10bits(MySerial,ScanWire);
 	}
- if (WireUtility_address&0xFC==0x7C)  	 MySerial.println("11111XX X Reserved for future purposes");
+ else if (WireUtility_address&0xFC==0x7C)  	 MySerial.println("11111XX X Reserved for future purposes");
  
     WireUtility_address++;
 	return WireUtility_address-1;     
