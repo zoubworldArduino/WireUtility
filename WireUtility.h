@@ -9,7 +9,7 @@
  
 /** read a 8 bit address data(addreg)
 */
-int readRegister(TwoWire &ScanWire,int adddev,int addreg);
+int readRegister(HardwareSerial &MySerial,TwoWire &ScanWire,int adddev,int addreg);
 /** read a 16 bit address data(addreg)
 */
 int readMem2(TwoWire &ScanWire,int adddev,int addreg);

@@ -264,7 +264,7 @@ for(int i=addreg;i<addreg+size;i++)
  MySerial.print(", @ 0x");
   MySerial.print(i,16);
  MySerial.print("= 0x");
-  MySerial.print(readRegister(ScanWire,adddev,i),16);
+  MySerial.print(readRegister(MySerial, ScanWire,adddev,i),16);
  
  MySerial.println("");
 }
