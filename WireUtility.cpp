@@ -1,4 +1,17 @@
 // --------------------------------------
+/** @file WireUtility.cpp
+@par description
+This library offers utility function for I2c protocol,like :
+- scan of device on the line, 
+- Wiretest to check if the line is alive.
+- any read/read of register inside component, evenif no standard exist, several component use the same way to do the thing.
+- dump of memory map.
+- Reset All Devices on the wire
+.
+Any thing usefull to do debug on I2c protocol with wire object.
+
+@par Author
+inspired from :
 // i2c_scanner
 //
 // Version 1
@@ -42,24 +55,6 @@ int scan(HardwareSerial &MySerial,TwoWire &ScanWire)
   return scanNext(MySerial,ScanWire);
 }
 
-/**
-Adresse d'appel général : 0000 0000
-
-Après l'émission d'un appel général, les circuits ayant la capacité de traiter ce genre de demande d'appel émettent un acquitement.
-
-Le deuxième octet permet de définir le contenu de l'appel :
-
-0000 0110
-    RESET. Remet tous les registres de circuits connectés dans leur état initial (mise sous tension). Les circuits qui le peuvent rechargent leur adresse esclave. 
-	
-*/
-int general_call_reset(TwoWire &ScanWire)
-{
-	ScanWire.beginTransmission(0x0);
-	ScanWire.write(0x06);
-	int error = ScanWire.endTransmission();
-	return error;
-}
 
 /**
 Adresse d'appel général : 0000 0000

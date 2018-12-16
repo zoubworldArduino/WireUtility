@@ -1,5 +1,6 @@
 #include "Arduino.h"
-/** @file This file content function to help to debug wire interface on component.
+/** @file WireUtility.h
+	This file content function to help to debug wire interface on component.
 
 */
 
@@ -29,32 +30,12 @@ int scanNext(HardwareSerial &MySerial,TwoWire &ScanWire);
 /** scan next 10 bit device address.
 */
 int scanNext10bits(HardwareSerial &MySerial,TwoWire &ScanWire);
-/**
-Adresse d'appel général : 0000 0000
 
-Après l'émission d'un appel général, les circuits ayant la capacité de traiter ce genre de demande d'appel émettent un acquitement.
+/** perform a reset of all device on the line that manage Software Reset Call
 
-Le deuxième octet permet de définir le contenu de l'appel :
-
-0000 0110
-    RESET. Remet tous les registres de circuits connectés dans leur état initial (mise sous tension). Les circuits qui le peuvent rechargent leur adresse esclave. 
-	
+The Software Reset address (SWRST Call) must be used with
+R/W = logic 0. so  do a frame with address : 0x0 and write 0b00000110
 */
-int general_call_reset(TwoWire &ScanWire);
-/**
-Adresse d'appel général : 0000 0000
-
-Après l'émission d'un appel général, les circuits ayant la capacité de traiter ce genre de demande d'appel émettent un acquitement.
-
-Le deuxième octet permet de définir le contenu de l'appel :
-
-0000 0100
-    Les circuits définissant leur adresse de façon matérielle réinitialisent leur adresse esclave. Cela ne réinitialise pas les circuits. 
-	
-*/
-int general_call_init_address(TwoWire &ScanWire);
-
-
 void wireResetAllDevices(TwoWire &MyWire);
 
 /** read 8 bits register at address addr on device from i2C called MyWire at address _i2caddr
