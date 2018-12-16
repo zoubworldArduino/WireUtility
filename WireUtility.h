@@ -1,7 +1,9 @@
 #include "Arduino.h"
-/** This file content function to help to debug wire interface on component.
+/** @file This file content function to help to debug wire interface on component.
 
 */
+
+int WireTest(TwoWire &ScanWire, int address);
 
 /** dump a 8 bit address data memory map from addreg up to (addreg+size)
 */
@@ -51,6 +53,28 @@ Le deuxième octet permet de définir le contenu de l'appel :
 	
 */
 int general_call_init_address(TwoWire &ScanWire);
+
+
+void wireResetAllDevices(TwoWire &MyWire);
+
+/** read 8 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+uint8_t wireRead8(TwoWire &MyWire, uint8_t _i2caddr, uint8_t addr);
+/** read 16 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+uint16_t wireRead16(TwoWire &MyWire, uint8_t _i2caddr, uint8_t addr);
+/** read 32 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+uint32_t wireRead32(TwoWire &MyWire, uint8_t _i2caddr, uint8_t addr);
+/** write 8 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+void wireWrite8(TwoWire &MyWire,uint8_t _i2caddr,uint8_t addr, uint8_t d);
+/** write 16 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+void wireWrite16(TwoWire &MyWire,uint8_t _i2caddr,uint8_t addr, uint16_t d);
+/** write 32 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+void wireWrite32(TwoWire &MyWire,uint8_t _i2caddr,uint8_t addr, uint32_t d);
 /*
 liste of several chip address :
 

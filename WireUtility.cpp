@@ -115,6 +115,20 @@ int scanNext10bits(HardwareSerial &MySerial,TwoWire &ScanWire)
   }
   return 0;
 }
+/** test if a device is present and acknoledging.
+*/
+int WireTest(TwoWire &ScanWire, int address)
+{
+  if (!ScanWire.testLine())
+    return false;
+  ScanWire.begin();
+  ScanWire.beginTransmission(WireUtility_address);
+  int error = ScanWire.endTransmission();
+
+    if (error == 0)
+return true;
+return false;
+}
 int scanNext(HardwareSerial &MySerial,TwoWire &ScanWire)
 {
   byte error;
@@ -142,9 +156,12 @@ if (WireUtility_address>=0x7800)
 	  if (WireUtility_address==0x0)  	 MySerial.println(" 0000000 0 / 0000000 1 General Call(0) or a Start Byte(1)");
           else if (WireUtility_address==0x1)  	 MySerial.println(" 0000001 X CBUS Addresses");
  else if (WireUtility_address==0x2)  	 MySerial.println(" 0000010 X Reserved for Different Bus Formats");
- else if (WireUtility_address==0x3)  	 MySerial.println(" 0000011 X Reserved for future purposes");
+ else if (WireUtility_address==0x3)  	 MySerial.println(" 0000011 X Reserved for future purposes used as reset");
  else if (WireUtility_address<0xf)  	 MySerial.println(" ...0001111 X Reserved for future purposes");
  else if (WireUtility_address&0xFC==0x4)  	 MySerial.println(" 00001XX X High-Speed Master Code");
+ //Software Reset (0000 0110)
+ //1110 000 : LED All Call address
+ 
  else if (WireUtility_address&0xFC==0x78)  	 {
 		MySerial.println("11110XX X 10-bit Slave Addressing :  11110XX X xxxxxxxx");
 			WireUtility_address=0x7800;
@@ -166,7 +183,78 @@ if (WireUtility_address>=0x7800)
   return 0;
 }
 
+/** perform a reset of all device on the line that manage Software Reset Call
 
+The Software Reset address (SWRST Call) must be used with
+R/W = logic 0. so  do a frame with address : 0x0 and write 0b00000110
+*/
+void wireResetAllDevices(TwoWire &MyWire) {
+  MyWire.beginTransmission(0x0);
+  MyWire.write(0x06);  
+  MyWire.endTransmission();
+}
+
+/** read 8 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+uint8_t wireRead8(TwoWire &MyWire, uint8_t _i2caddr, uint8_t addr) {
+  MyWire.beginTransmission(_i2caddr);
+  MyWire.write(addr);
+  MyWire.endTransmission();
+
+  MyWire.requestFrom((uint8_t)_i2caddr, (uint8_t)1);
+  return MyWire.read();
+}
+
+/** read 16 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+uint16_t wireRead16(TwoWire &MyWire, uint8_t _i2caddr, uint8_t addr) {
+  MyWire.beginTransmission(_i2caddr);
+  MyWire.write(addr);
+  MyWire.endTransmission();
+
+  MyWire.requestFrom((uint8_t)_i2caddr, (uint8_t)2);
+  return MyWire.read()| (MyWire.read()<<8);
+}
+
+/** read 32 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+uint32_t wireRead32(TwoWire &MyWire, uint8_t _i2caddr, uint8_t addr) {
+  MyWire.beginTransmission(_i2caddr);
+  MyWire.write(addr);
+  MyWire.endTransmission();
+
+  MyWire.requestFrom((uint8_t)_i2caddr, (uint8_t)4);
+  return MyWire.read()| (MyWire.read()<<8)| (MyWire.read()<<16)| (MyWire.read()<<24);
+}
+
+/** write 8 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+void wireWrite8(TwoWire &MyWire,uint8_t _i2caddr,uint8_t addr, uint8_t d) {
+  MyWire.beginTransmission(_i2caddr);
+  MyWire.write(addr);
+  MyWire.write(d);
+  MyWire.endTransmission();
+}
+/** write 16 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+void wireWrite16(TwoWire &MyWire,uint8_t _i2caddr,uint8_t addr, uint16_t d) {
+  MyWire.beginTransmission(_i2caddr);
+  MyWire.write(addr);
+  MyWire.write(d);
+  MyWire.write(d>>8);
+  MyWire.endTransmission();
+}
+/** write 32 bits register at address addr on device from i2C called MyWire at address _i2caddr
+*/
+void wireWrite32(TwoWire &MyWire,uint8_t _i2caddr,uint8_t addr, uint32_t d) {
+  MyWire.beginTransmission(_i2caddr);
+  MyWire.write(addr);
+  MyWire.write(d);
+  MyWire.write(d>>8);
+  MyWire.write(d>>16);
+  MyWire.write(d>>24);  
+  MyWire.endTransmission();
+}
 
 
 int readRegister(HardwareSerial &MySerial,TwoWire &ScanWire,int adddev,int addreg){
