@@ -39,7 +39,7 @@ inspired from :
 // Devices with higher bit WireUtility_address might not be seen properly.
 //
 //https://www.i2c-bus.org/WireUtility_addressing/
-
+*/
 #include <Wire.h>
 #include <WireUtility.h>
 
