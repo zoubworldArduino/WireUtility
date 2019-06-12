@@ -117,6 +117,7 @@ int WireTest(TwoWire &ScanWire, int address)
   if (!ScanWire.testLine())
     return false;
   ScanWire.begin();
+  delay(1);
   ScanWire.beginTransmission(WireUtility_address);
   int error = ScanWire.endTransmission();
 
