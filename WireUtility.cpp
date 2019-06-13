@@ -118,7 +118,7 @@ int WireTest(TwoWire &ScanWire, int address)
     return false;
   ScanWire.begin();
   delay(1);
-  ScanWire.beginTransmission(WireUtility_address);
+  ScanWire.beginTransmission(address);
   int error = ScanWire.endTransmission();
 
     if (error == 0)
@@ -128,11 +128,11 @@ return false;
 int scanNext(HardwareSerial &MySerial,TwoWire &ScanWire)
 {
   byte error;
-  int nDevices;
+//  int nDevices;
 
 if (WireUtility_address>=0x7800)
  return scanNext10bits(MySerial,ScanWire);
-  nDevices = 0;
+//  nDevices = 0;
   for(; WireUtility_address < 127; WireUtility_address++ ) 
   {
     // The i2c_scanner uses the return value of
@@ -154,16 +154,16 @@ if (WireUtility_address>=0x7800)
  else if (WireUtility_address==0x2)  	 MySerial.println(" 0000010 X Reserved for Different Bus Formats");
  else if (WireUtility_address==0x3)  	 MySerial.println(" 0000011 X Reserved for future purposes used as reset");
  else if (WireUtility_address<0xf)  	 MySerial.println(" ...0001111 X Reserved for future purposes");
- else if (WireUtility_address&0xFC==0x4)  	 MySerial.println(" 00001XX X High-Speed Master Code");
+ else if ((WireUtility_address&0xFC)==0x4)  	 MySerial.println(" 00001XX X High-Speed Master Code");
  //Software Reset (0000 0110)
  //1110 000 : LED All Call address
  
- else if (WireUtility_address&0xFC==0x78)  	 {
+ else if ((WireUtility_address&0xFC)==0x78)  	 {
 		MySerial.println("11110XX X 10-bit Slave Addressing :  11110XX X xxxxxxxx");
 			WireUtility_address=0x7800;
 		return scanNext10bits(MySerial,ScanWire);
 	}
- else if (WireUtility_address&0xFC==0x7C)  	 MySerial.println("11111XX X Reserved for future purposes");
+ else if ((WireUtility_address&0xFC)==0x7C)  	 MySerial.println("11111XX X Reserved for future purposes");
  
     WireUtility_address++;
 	return WireUtility_address-1;     
