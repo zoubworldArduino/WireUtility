@@ -50,7 +50,7 @@ int scan(HardwareSerial &MySerial,TwoWire &ScanWire)
 {
  // ScanWire.begin(123);
   ScanWire.begin();
-  
+   MySerial.println("Scanning...");
   WireUtility_address = 0x1;// scan special address
   return scanNext(MySerial,ScanWire);
 }
@@ -80,7 +80,7 @@ int scanNext10bits(HardwareSerial &MySerial,TwoWire &ScanWire)
   byte error;
  
 
-  MySerial.println("Scanning...");
+ 
 
    for(; WireUtility_address <= 0x7BFF; WireUtility_address++ ) 
   {
@@ -106,16 +106,26 @@ int scanNext10bits(HardwareSerial &MySerial,TwoWire &ScanWire)
       if (WireUtility_address<16) 
         MySerial.print("0");
       MySerial.println(WireUtility_address,HEX);
+    }  else 
+    {
+      MySerial.print("no device on  0x");
+      if (WireUtility_address<16) 
+        MySerial.print("0");
+      MySerial.print(WireUtility_address,HEX);
+	   MySerial.print("	error	0x"); MySerial.println(error,HEX);
     }    
   }
+  MySerial.print("10bits scanning end.");
   return 0;
 }
 /** test if a device is present and acknoledging.
 */
 int WireTest(TwoWire &ScanWire, int address)
 {
+	#if 0
   if (!ScanWire.testLine())
     return false;
+ #endif
   ScanWire.begin();
   delay(1);
   ScanWire.beginTransmission(address);
@@ -174,8 +184,16 @@ if (WireUtility_address>=0x7800)
       if (WireUtility_address<16) 
         MySerial.print("0");
       MySerial.println(WireUtility_address,HEX);
-    }    
+    } 
+	 else 
+    {
+      MySerial.print("no device on  0x");
+      MySerial.print(WireUtility_address,HEX);
+	   MySerial.print("	error	0x"); MySerial.println(error,HEX);
+    } 
+	
   }
+   MySerial.print("7bits scanning end.");
   return 0;
 }
 
